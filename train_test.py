@@ -40,15 +40,18 @@ y_train = train_df['Label']
 X_test = test_df.drop('Label', axis=1)
 y_test = test_df['Label']
 
+
+random_seed = 22 #Edirne
+
 # --- HAREKET İSİMLERİ ---
 all_target_names = {
-    0: 'Large Cylindrical (B1)', 
-    1: 'Small Cylindrical (B2)', 
-    2: 'Spherical Grasp (B5)', 
-    3: 'Prismatic 4-Fingers (B6)', 
-    4: 'Lateral Grasp (B7)',
-    5: 'Tripod/Object Pinch (C5)',
-    6: 'Tool/Power Grip (C14)'
+    0: 'Thumb up (B1)', 
+    1: 'Scissors (B2)', 
+    2: 'Open (B5)', 
+    3: 'Closed(B6)', 
+    4: 'Point (B7)',
+    5: 'Cylindrical (C5)',
+    6: 'Pinch (C14)'
 }
 
 # Modellerin hangi etiketlerle çalıştığını dinamik tespit etme
@@ -68,7 +71,7 @@ print("="*50 + "\n")
 # MODEL 1: SVM
 # =========================================================
 print("--- 1. Destek Vektör Makineleri (SVM) ---")
-svm_model = SVC(kernel='rbf', C=10, gamma='scale', random_state=42)
+svm_model = SVC(kernel='rbf', C=10, gamma='scale', random_state=random_seed)
 svm_model.fit(X_train_scaled, y_train)
 
 svm_predictions = svm_model.predict(X_test_scaled)
@@ -83,7 +86,7 @@ plot_normalized_confusion_matrix(y_test, svm_predictions, "SVM", existing_labels
 # MODEL 2: RANDOM FOREST
 # =========================================================
 print("\n--- 2. Rastgele Orman (Random Forest) ---")
-rf_model = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=42)
+rf_model = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=random_seed)
 rf_model.fit(X_train_scaled, y_train)
 
 rf_predictions = rf_model.predict(X_test_scaled)

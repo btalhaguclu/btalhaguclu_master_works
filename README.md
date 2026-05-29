@@ -128,12 +128,12 @@ If you need to regenerate the feature data from raw NinaPro signals:
 
 1. **For within-subject features**:
 ```matlab
-ninapro_to_mydata_S2_S5
+ninapro_to_mydata
 ```
 
 2. **For cross-subject features**:
 ```matlab
-ninapro_to_mydata_S2_S5_S1_S10
+Train_S2_S5_Test_S1_S10
 ```
 
 These scripts:
@@ -169,9 +169,9 @@ Following training tests conducted with data from 4 different subjects, the over
 
 | Model Type | Accuracy Rate | Confused Classes |
 | :--- | :--- | :--- |
-| **SVM (RBF Kernel)** | 89.56% | B1, B2, C14 |
-| **Random Forest** | 93.75% | Partially B1 and C14 |
-| **MEET (Extra Trees + OvO)** | **> 94.00%** | **Most stable class separation** |
+| **SVM (RBF Kernel)** | 87.65% | B1, B2, C14 |
+| **Random Forest** | 92.88% | Partially B1 and C14 |
+| **MEET (Extra Trees + OvO)** | **> 94.74%** | **Most stable class separation** |
 
 *(Detailed Confusion Matrices and classification reports are available in the project's visual assets directory.)*
 
@@ -182,7 +182,7 @@ Following training tests conducted with data from 4 different subjects, the over
 - All text in scripts is in **Turkish** for documentation purposes
 - Features are scaled only on training data to prevent data leakage
 - Cross-subject validation tests generalization to unseen subjects
-- Random state fixed (42) for reproducibility
+- Random state fixed (22) for reproducibility
 
 ## 🔗 References
 

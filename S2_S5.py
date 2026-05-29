@@ -34,6 +34,7 @@ def plot_normalized_confusion_matrix(y_true, y_pred, model_name, labels, target_
 # 1. VERİYİ YÜKLEME
 # Dosya adının MATLAB'den çıkan son dosya olduğundan emin ol
 file_path = 'db5_data/emg_features_7moves_8ch.csv'
+random_seed = 22 #Edirne
 
 try:
     df = pd.read_csv(file_path)
@@ -66,7 +67,7 @@ current_target_names = [all_target_names[lbl] for lbl in existing_labels]
 print(f"\nAlgılanan Sınıflar: {current_target_names}\n")
 
 # 3. VERİYİ EĞİTİM VE TEST OLARAK BÖLME
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=random_seed, stratify=y)
 
 # 4. ÖZELLİK ÖLÇEKLEME (FEATURE SCALING)
 scaler = StandardScaler()
@@ -81,7 +82,7 @@ print("="*50 + "\n")
 # MODEL 1: SVM
 # =========================================================
 print("--- 1. Destek Vektör Makineleri (SVM) ---")
-svm_model = SVC(kernel='rbf', C=10, gamma='scale', random_state=42)
+svm_model = SVC(kernel='rbf', C=10, gamma='scale', random_state=random_seed)
 svm_model.fit(X_train_scaled, y_train)
 
 svm_predictions = svm_model.predict(X_test_scaled)
@@ -98,7 +99,7 @@ plot_normalized_confusion_matrix(y_test, svm_predictions, "SVM", existing_labels
 # MODEL 2: RANDOM FOREST
 # =========================================================
 print("\n--- 2. Rastgele Orman (Random Forest) ---")
-rf_model = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=42)
+rf_model = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=random_seed)
 rf_model.fit(X_train_scaled, y_train)
 
 rf_predictions = rf_model.predict(X_test_scaled)
