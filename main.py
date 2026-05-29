@@ -42,13 +42,13 @@ y = df['Label']
 
 # --- NİNAPRO LİTERATÜRÜNE UYGUN HAREKET İSİMLERİ ---
 all_target_names = {
-    0: 'Large Cylindrical (B1)', 
-    1: 'Small Cylindrical (B2)', 
-    2: 'Spherical Grasp (B5)', 
-    3: 'Prismatic 4-Fingers (B6)', 
-    4: 'Lateral Grasp (B7)',
-    5: 'Tripod/Object Pinch (C5)',
-    6: 'Tool/Power Grip (C14)'
+    0: 'Thumb up (B1)', 
+    1: 'Scissors (B2)', 
+    2: 'Open (B5)', 
+    3: 'Closed(B6)', 
+    4: 'Point (B7)',
+    5: 'Cylindrical (C5)',
+    6: 'Pinch (C14)'
 }
 
 existing_labels = np.sort(df['Label'].unique())

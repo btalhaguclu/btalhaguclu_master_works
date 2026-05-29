@@ -8,26 +8,25 @@ This project implements and compares multiple machine learning classifiers to re
 
 ### Hand Gestures Recognized (7 Movements)
 
-1. **B1**: Large Cylindrical Grasp
-2. **B2**: Small Cylindrical Grasp
-3. **B5**: Spherical Grasp
-4. **B6**: Prismatic 4-Fingers Grip
-5. **B7**: Lateral Grasp
-6. **C5**: Tripod/Object Pinch
-7. **C14**: Tool/Power Grip
+1. **B1**: Thumb Up 
+2. **B2**: Scissors
+3. **B5**: Open
+4. **B6**: Closed
+5. **B7**: Point
+6. **C5**: Cylindrical
+7. **C14**: Pinch
 
 ## 🏗️ Project Structure
 
 ```
 nina_pro/
 ├── S2_S5.py                           # Within-subject training (Subjects 2 & 5)
-├── S2_S5_S1_S10/                      # Cross-subject validation (Train: S2,S5 | Test: S1,S10)
+├── S2_S5_S1_S10/                      # Confusion Matrix of Model outputs 
 ├── train_test.py                      # Cross-subject model training and testing
-├── meet.py                            # MEET (Mixture of Experts) model implementation
+├── main.py                            # Within-subject training with MEET (Mixture of Experts) model implementation (Subjects 1, 2, 5, 10)
 ├── ninapro_to_mydata_S2_S5.m          # MATLAB data preprocessing (Subjects 2 & 5)
-├── ninapro_to_mydata_S2_S5_S1_S10.m   # MATLAB cross-subject data preprocessing
 ├── Train_S2_S5_Test_S1_S10.m          # MATLAB training/testing setup
-├── db5_data/                          # Processed EMG feature data (CSV files)
+├── db5_data/                          # Processed and Unprocessed EMG feature data (CSV files)
 ├── hand_moves.png                     # Hand gesture visualization
 └── README.md                          # This file
 ```
@@ -38,6 +37,13 @@ The EMG signals are from the **NinaPro Database (DB5)** containing:
 - **8 EMG channels** from forearm sensors
 - **Extracted features** (mean absolute value, variance, zero crossing rate, etc.)
 - **7 hand movement classes** from NinaPro standard protocol
+
+### Signal Preprocessing & Feature Extraction (MATLAB)
+Raw sensor data is resampled to 1000 Hz and divided into 150 ms windows. The following Time-Domain Features are extracted for each of the 8 channels, yielding a **32-dimensional** feature vector per window:
+* **RMS (Root Mean Square):** Total muscle power produced.
+* **MAV (Mean Absolute Value):** Signal amplitude/intensity level.
+* **WL (Waveform Length):** Signal complexity.
+* **SSC (Slope Sign Changes):** Frequency characteristic estimator
 
 ### Data Files Generated
 
@@ -156,6 +162,21 @@ EMG features extracted per channel include:
   - Precision, Recall, F1-score
   - Normalized Confusion Matrix
 
+
+## 📊 Performance Results (Random Split)
+
+Following training tests conducted with data from 4 different subjects, the overall accuracy rates of the models are as follows:
+
+| Model Type | Accuracy Rate | Confused Classes |
+| :--- | :--- | :--- |
+| **SVM (RBF Kernel)** | 89.56% | B1, B2, C14 |
+| **Random Forest** | 93.75% | Partially B1 and C14 |
+| **MEET (Extra Trees + OvO)** | **> 94.00%** | **Most stable class separation** |
+
+*(Detailed Confusion Matrices and classification reports are available in the project's visual assets directory.)*
+
+---
+
 ## 📝 Notes
 
 - All text in scripts is in **Turkish** for documentation purposes
@@ -168,7 +189,7 @@ EMG features extracted per channel include:
 - NinaPro Database: https://www.ninapro.org/
 - Dataset DB5: Upper limb kinematic and EMG signals
 - NinaPro Protocol: Standard hand movement gestures
--  MEET: Mixture of Experts Extra Tree-Based sEMG Hand Gesture Identification : https://arxiv.org/pdf/2405.09562
+- MEET: Mixture of Experts Extra Tree-Based sEMG Hand Gesture Identification : https://arxiv.org/pdf/2405.09562
 
 ## 👤 Author
 
