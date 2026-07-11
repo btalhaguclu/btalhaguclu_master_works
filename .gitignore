@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Regenerated artifacts (recreate with preprocess.py — kept out of history)
+# NOTE: the current .npy/.csv are committed for convenience; uncomment to stop
+# tracking future regenerations.
+# data/ninapro/X_ninapro_raw.npy
+# data/ninapro/y_ninapro_raw.npy
+
+# Temporary cleanup folder created during reorganization
+_TO_DELETE/

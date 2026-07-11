@@ -1,0 +1,15 @@
+# Normalise line endings so Windows/Linux checkouts stop showing whole-file diffs.
+* text=auto
+
+# Force LF for source/text files regardless of platform.
+*.py   text eol=lf
+*.md   text eol=lf
+*.txt  text eol=lf
+*.m    text eol=lf
+*.csv  text eol=lf
+
+# Treat data/image blobs as binary (never munge line endings).
+*.mat  binary
+*.npy  binary
+*.png  binary
+*.docx binary

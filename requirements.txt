@@ -1,0 +1,10 @@
+# Core scientific stack (classical models + preprocessing)
+numpy>=1.23
+pandas>=1.5
+scipy>=1.9
+scikit-learn>=1.2
+matplotlib>=3.6
+seaborn>=0.12
+
+# Deep learning (only needed for the CNN scripts: train_cnn*.py)
+tensorflow>=2.12
