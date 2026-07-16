@@ -5,7 +5,8 @@ Machine-learning experiments for recognising hand gestures from surface EMG
 datasets and compares classical models (SVM, Random Forest, MEET) with a 1D CNN.
 
 - **NinaPro DB5** — public benchmark, 8-channel Myo-armband EMG, 7 gestures.
-- **Custom dataset** — 2-channel EMG recorded from two subjects (Ecem & Selman), 6 gestures.
+- **Custom dataset** — 2-channel EMG recorded from two subjects (Ecem & Selman). On this
+  branch the `tip` gesture is excluded entirely, so the dataset has **5 gestures** (labels 0–4).
 
 ---
 
@@ -23,10 +24,10 @@ datasets and compares classical models (SVM, Random Forest, MEET) with a 1D CNN.
 │   │   └── train_cnn.py           # 1D CNN on raw EMG windows
 │   └── custom/
 │       ├── preprocess.py          # Raw .mat -> custom_dataset.csv
-│       ├── train_classical.py     # SVM / RF / MEET (6 gestures)
-│       ├── train_classical_wo_cyl.py  # Same, cylindrical gesture removed
-│       ├── train_cnn.py           # 1D CNN (6 gestures)
-│       └── train_cnn_wo_cyl.py    # 1D CNN (5 gestures)
+│       ├── train_classical.py     # SVM / RF / MEET (5 gestures, tip excluded)
+│       ├── train_classical_wo_cyl.py  # Same, cylindrical also removed (4 gestures)
+│       ├── train_cnn.py           # 1D CNN (5 gestures)
+│       └── train_cnn_wo_cyl.py    # 1D CNN (4 gestures, tip + cyl removed)
 ├── data/
 │   ├── ninapro/                   # NinaPro DB5 .mat, feature CSVs, raw .npy
 │   └── custom/                    # Ecem/Selman .mat + custom_dataset.csv
@@ -48,7 +49,7 @@ datasets and compares classical models (SVM, Random Forest, MEET) with a 1D CNN.
 **NinaPro DB5 (7):** Thumb up (B1), Scissors (B2), Open (B5), Closed (B6),
 Point (B7), Cylindrical (C5), Pinch (C14).
 
-**Custom (6):** point, tip, rock, closed, cylindrical, open.
+**Custom (5, tip excluded on this branch):** point, rock, closed, cylindrical, open.
 
 ---
 
@@ -75,9 +76,13 @@ This yields **32 features/window** for NinaPro (8 channels × 4) and
 - **SVM** — RBF kernel, `C=10`, `gamma='scale'`.
 - **Random Forest** — 100 trees.
 - **MEET** — *Mixture of Experts Extra Trees*: One-vs-One ensemble of
-  Extra-Trees experts ([Xiong et al., 2024](https://arxiv.org/pdf/2405.09562)).
-- **1D CNN** — convolutional network trained on standardised raw windows
-  (NinaPro) or feature vectors (custom), with early stopping and class weighting.
+  Extra-Trees experts, adapted from [Gehlot et al., 2024](https://arxiv.org/abs/2405.09562).
+- **1D CNN** — convolutional network trained on standardised **raw** windows for
+  **both** datasets (NinaPro 150×8, custom 150×2) via one shared architecture
+  (`emg_common.build_raw_cnn`), with early stopping and class weighting.
+- **KNN** — k-nearest neighbours (`k=5`), a simple distance-based baseline.
+- **MLP** — multi-layer perceptron (one hidden layer of 128 ReLU units), a small
+  feed-forward neural network.
 
 ---
 
@@ -116,7 +121,7 @@ Results below are from the reference runs committed to the repository
 | Random Forest | 92.88% |
 | **MEET (Extra Trees + OvO)** | **> 94.74%** |
 
-**Custom dataset — all 6 gestures**
+**Custom dataset — original 6-gesture baseline (reference only)**
 
 | Model | Accuracy | Main confusion |
 | :-- | :-- | :-- |
@@ -124,8 +129,12 @@ Results below are from the reference runs committed to the repository
 | Random Forest | 71.63% | cylindrical ↔ closed |
 | MEET | 70.93% | cylindrical ↔ closed |
 
-The cylindrical gesture is the dominant source of error on the 2-channel data;
-`*_wo_cyl.py` variants isolate that effect.
+These figures are from the original runs that still included `tip`. **On this
+branch `tip` is excluded**, so the experiments are: (1) `train_classical.py` /
+`train_cnn.py` on the 5 remaining gestures, and (2) `train_classical_wo_cyl.py` /
+`train_cnn_wo_cyl.py` which also drop cylindrical, leaving 4 gestures. Re-run
+those scripts to regenerate the confusion matrices and accuracies for this branch.
+The cylindrical gesture remains the dominant source of error on the 2-channel data.
 
 ---
 

@@ -1,0 +1,560 @@
+ elektrotları, ön kol kasları kasıldığında oluşan elektriksel aktiviteyi ölçer. Farklı hareketler farklı kas gruplarını etkinleştirir → ayırt edilebilir sinyal örüntüleri.
+%69,68
+%72,46
+%72,62
+%72,75
+%72,92
+%72,98
+%80 / %20 bölme
+%81,50
+%82,96
+%83,21
+%86,06
+%86,35
+%87,65
+%92,88
+%94,74
+'Pencere' (Window) Tam Olarak Ne?
+'closed': KNN %73→%89, MLP/CNN %74→%92
+'kapalı' sınıfı: 
+'scale'
+(128,) ReLU
+(1–2, 1–3, 2–3, …)
+(200 Hz'in Nyquist sınırı 100 Hz; üstü zaten kayıptır). 
+(hareket)
+(softmax)
++10,3
++11,8
+, kas kasıldığında üretilen elektriksel aktiviteyi ölçer. Ön koldaki yüzey sinyallerinden hangi hareketin yapıldığını çözmek; protez, rehabilitasyon ve insan–makine arayüzleri için kritik bir problemdir.
+, sürekli EMG sinyalinden kesilen kısa, sabit uzunlukta bir parçadır (bu çalışmada 150 ms). Modelin sınıflandırdığı en küçük birim tüm sinyal değil, tek bir penceredir.
+-1
+.
+.mat
+1
+1 pencere = 1 öznitelik vektörü = 1 tahmin. Sınıflandırma bu küçük parçalar üzerinde yapılır; hareketin nihai kararı pencerelerin birleşiminden gelir.
+1. 
+10
+100
+100 ağaç topluluğu
+100 ağaç: kararlı topluluk için yeterli; daha fazlası marjinal katkı, daha çok hesap
+1000 Hz
+150 ms
+150 örneklik pencereyi kanal başına 4 sayıya, az bilgi kaybıyla indirger
+19.591
+19.591 pencere
+1B CNN
+1B CNN (ham)
+1B CNN 150 uzunlukta ham girdi bekler; 30 örnek büyük çekirdekler (10, 5) için yetersizdir.
+1B CNN Nasıl Çalışır?
+1B CNN — İki Mimari
+1B evrişimli ağ
+1×128 sinir ağı
+2
+2 kanal × 4 öznitelik
+2 kanal × 4 öznitelik = 8
+2 kanalın uzamsal bilgi sınırı
+2. 
+200 Hz'de 150 ms = 30 örnek; 1000 Hz'de 150 örnek. Fark-tabanlı WL ve SSC çok daha kararlı olur.
+200 → 1000 Hz
+200 → 1000 Hz yükseltme (×5)
+22
+2× Conv1D (64/128) + BatchNorm + MaxPool
+3
+3. 
+300 · seed 22
+32 boyut/pencere
+4
+4 sınıf (cyl hariç)
+4. 
+5
+5 sınıf
+5 sınıf (cyl dahil)
+5. 
+50,9
+55,2
+57,4
+58,2
+59,2
+6
+6 Model
+6. 
+60,7
+67,4
+67.885
+67.885 pencere
+68,4
+68,5
+68,6
+69,1
+69,3
+7
+7 sınıf
+7. 
+71,5
+72,5
+73,9
+74,3
+74,4
+75,6
+77,0
+77,9
+78,5
+8
+8 (Myo kol bandı)
+8 boyut/pencere
+8 kanal × 4 öznitelik
+8 kanal, benzer kavramaları ayırmak için gereken uzamsal çözünürlüğü sağlar; 2 kanal sağlayamaz.
+8 kanallı sEMG'de en iyisi (> %92)
+80,6
+80,8
+80,9
+81,1
+81,3
+81,4
+82,0
+82,1
+82,2
+82,5
+83,3
+84,4
+85,4
+85,9
+86,2
+86,3
+86,4
+87,0
+87,4
+88,3
+88,9
+89,2
+89,3
+89,9
+9
+90,2
+90,4
+91,9
+92,0
+92,2
+92,6
+92,7
+93,1
+93,9
+94,6
+94,8
+95,1
+96,7
+96,8
+97,4
+= 32 boyut / pencere
+= 8 boyut / pencere
+?
+ARKA PLAN
+Adam (lr=0.001), sparse categorical crossentropy, erken durdurma (en iyi ağırlık geri yükleme), ReduceLROnPlateau, dengeli sınıf ağırlığı, seed 22.
+Adam optimizasyon: uyarlanabilir öğrenme oranı, hızlı yakınsama
+Adam, lr=0.001
+Adım: 30 ms → %80 örtüşme
+Adım: 30 örnek → %80 örtüşme
+Altı model de ~%70–73 bandında sıkışıyor
+Altı model içinde MEET ve Random Forest,
+Altı model: parametreler & gerekçeler
+Amaç: iki veri setinde altı modeli, tek ve aynı boru hattıyla adil biçimde karşılaştırmak.
+Ampute bireyler için doğal kontrol
+Ardışık örnekler arası mutlak farkların toplamı — dalganın kümülatif uzunluğu. Sinyalin karmaşıklığını (genlik + frekans birleşimini) dolaylı olarak ölçer.
+Atzori, M. et al. (2014). Electromyography data for non-invasive naturally-controlled robotic hand prostheses. Scientific Data 1:140053. — ninapro.hevs.ch
+Aynı denekler / hiç görülmemiş denekler (S1, S10)
+Açık kaynak kıyaslama veri tabanı
+Ağaç 1
+Ağaç 2
+Ağaç 3
+Ağaçlar farklı olduğundan topluluk ortalaması varyansı düşürür, gürültüye dayanıklıdır
+BU ÇALIŞMADAKİ UYGULAMA
+Bagging + rastgele öznitelik → düşük varyans, gürültüye dayanıklı
+Basit, veri-verimli sınıflandırıcıların yüksek doğruluğa ulaşmasını sağlar
+Başlangıçtan 150 ms pencereler
+Benzer kavramalar (silindirik ↔ kapalı) çok yakın kas aktivasyonu üretir. 
+Birbirine benzeyen zor çiftleri (silindirik↔kapalı, B1↔B7) tek modele göre çok daha iyi ayırır
+Bire-Bir (One-vs-One): her sınıf çifti için bir ikili sınıflandırıcı → n(n−1)/2 uzman (5 sınıf = 10 uzman)
+Boyut
+Breiman, L. (2001). Random Forests. Machine Learning 45(1):5–32.
+Bu 5 komşunun oy çokluğu tahmini verir
+Bu veri hacminde el yapımı öznitelikler zaten güçlü; CNN'in ham sinyal avantajı sınırlı.
+Bu yüzden öznitelik ve model seçimi belirleyicidir.
+Bu çalışmada en dengeli ve en yüksek doğruluğu verdi (NinaPro'da > %94)
+Burak Talha Güçlü  |  Yüksek Lisans Tez Çalışması
+Büyük çekirdek (10,5) → zamansal örüntü
+C
+C=10: marj genişliği ile hata cezası dengesi; sEMG'de genelde iyi sonuç veren orta-yüksek değer
+CNN
+CNN de (%72,6) klasiklerle başa baş
+CNN en geride (~%83)
+CNN girdi uzunluğu
+CNN: %72,6 → %83,0  (+10,3)
+Closed (B6)
+Conv1D(32,3) + MaxPool
+Cylindrical (C5)
+Cylindrical etkisi & sınıf analizi
+Cylindrical'ı Çıkarınca — Etki
+Daha fazla denek → genelleme
+Denek
+Denek-içi & denekler-arası
+Dense
+Dense(256/128)+Dropout, çıktı softmax(7)
+Dense(64)+Dropout, çıktı softmax(6)
+Dezavantaj: sınıf örtüşmesine ve gürültüye duyarlı, bellek/tahmin maliyeti yüksek
+Değerlendirme
+Değerlendirme Yöntemi
+Değerlendirme yöntemi
+Değerler % doğruluk (recall). MEET her sınıfta lider; KNN'in en zayıfı Point (%77).
+Değişim
+Dokunmadan komut / etkileşim
+Doğruluk+matris
+Doğruluk, precision/recall/F1, normalize confusion matrix
+Doğrusal ayrılamayan veriyi RBF çekirdeği ile daha yüksek boyuta taşır
+Doğrusal olmayan karar sınırları öğrenir; standartlaştırılmış girdi şart
+Dört öznitelik birbirini tamamlar: genlik (RMS, MAV), karmaşıklık (WL) ve frekans (SSC) — az fazlalıkla dört farklı bilgi. Frekans-uzayı öznitelikleri daha pahalı ve bu problemde gereksiz görüldü.
+Düzleştirme sonrası tam bağlı (Dense) katman sınıflandırır; filtreler eğitimle öğrenilir
+Düşük maliyetli 2 kanallı kayıt
+EMG (elektromiyografi)
+EMG kanalı
+Ecem, Selman
+El Hareketi Sınıflandırma Analizi
+En geniş marjlı ayırıcı düzlem (— — marj sınırları)
+En yakın 5 komşu → oy çokluğu
+En yakın k = 5 komşu seçilir
+Evrişim
+Evrişim (conv) filtreleri girdinin üzerinde kayarak yerel örüntüleri yakalar
+Extra Trees — 
+Extra Trees: aşırı rastgele ağaçlar → daha düşük varyans, hızlı
+ExtraTrees
+Eğim işaretinin kaç kez değiştiğini sayar (tepe/vadi sayısı). Sinyalin frekans içeriğini tahmin eder; yüksek frekans → daha çok işaret değişimi.
+Eğitim yok — tüm hesap tahmin anında; basit ve yorumlanabilir
+Eğitim yoktur; tüm örnekler bellekte saklanır
+Frekans-uzayı öznitelikleri ekle
+GENEL BAKIŞ
+Gehlot ve ark. (2024) makalesinden uyarlandı
+Gehlot, N., Jena, A., Kumar, R., Bukya, M. (2024). MEET: Mixture of Experts Extra Tree-Based sEMG Hand Gesture Identification. arXiv:2405.09562.
+Geurts, P., Ernst, D., Wehenkel, L. (2006). Extremely randomized trees. Machine Learning 63(1):3–42.
+Girdi
+Girdi: öznitelik değerleri (custom'da 8)
+Girişimsiz, gerçek zamanlı, düşük maliyetli
+Gizli
+Gizli katman: her nöron ağırlıklı toplam + ReLU aktivasyonu
+GÜNDEM
+Gürültülü; kişi ve denemeye göre değişken
+HAREKETLER
+Ham EMG
+Ham dalga yüksek boyutlu → özniteliklerle özetlenir
+Ham dalgayı doğrudan modele vermek yerine, kısa pencerelere bölüp kas aktivitesinin özet tanımlayıcılarını çıkarırız. Sınıflandırıcı bu tanımlayıcıları harekete eşler.
+Ham/öznitelik girdisi → yerel örüntü çıkarımı → boyut indirgeme → sınıflandırma
+Hareket
+Havuzlama
+Her adım tüm modeller için sabit → farkların kaynağı yalnızca modelin kendisi.
+Her ağaç bağımsız bir oy verir → oy çokluğu nihai sınıfı belirler
+Her pencere, her kanal için 4 öznitelikle temsil edilir. Vektör boyutu doğrudan kanal sayısına bağlıdır:
+Her pencereden bir öznitelik vektörü (RMS/MAV/WL/SSC) çıkarılır
+Her sınıf çifti için bir ikili Extra Trees uzmanı (5 sınıf = 10 uzman)
+Her uzman bir sınıf çiftini öğrenir (E1: sınıf 1–2, E2: 3–4, …)
+Her uzman yalnızca birkaç sınıfa odaklandığından silindirik↔kapalı gibi zor çiftleri keskin ayırır → en dengeli ve en yüksek doğruluk (NinaPro > %94).
+Her uzman yalnızca iki sınıfı ayırmaya odaklanır → o çift için çok keskin karar sınırı
+Hudgins, B., Parker, P., Scott, R. N. (1993). A new strategy for multifunction myoelectric control. IEEE Trans. Biomed. Eng. 40(1):82–94.
+KARŞILAŞTIRMA
+KISACA
+KNN
+KNN %72,5 → %89,4   ·   MLP %74,4 → %91,4   ·   CNN %69,3 → %91,7   (SVM/RF/MEET'te de closed ~%92). Sebep modeller değil, 2 kanalla silindirik–kapalı ayrımının yapılamamasıdır.
+KNN (k=5)
+KNN Nasıl Çalışır?
+KNN en düşük (%70) — örtüşmeye kırılgan
+KNN — 'closed' %89,4'e çıkıyor
+KNN — Point/B7 en zayıf (%77)
+KNN — k-En Yakın Komşu
+KNN — silindirik %50,9
+KNN: %69,7 → %81,5  (+11,8)
+Kanal
+Kanal sayısını artır (en yüksek getiri)
+Kapı, tüm veriyle eğitilir ve uzman çıktılarını ağırlıklandırır
+Karar ağacı: veriyi özniteliklere göre ardışık evet/hayır sorularıyla böler
+Karşılaştırmalı Analiz
+Karşılaştırılan Altı Model
+Karşılaşılan Sorunlar
+Kas aktivasyonu takibi ve terapi
+Kayan pencere: pencere sabit adımla ileri kaydırılır (adım 30 ms)
+Kaynak: Gehlot, Jena, Kumar, Bukya (2024). MEET: Mixture of Experts Extra Tree-Based sEMG Hand Gesture Identification. arXiv:2405.09562
+Kaynaklar
+Kazanç: daha kararlı öznitelik + iki veri setinde tutarlılık + CNN'e uygun girdi uzunluğu.
+Klasik (SVM/RF/MEET) de ~%73 → ~%83
+Kod tekrarı → ortak modülde toplandı
+Kolon adları: RMS_ch1, MAV_ch1, WL_ch1, SSC_ch1, … + Label. Öznitelik hesapları tek bir ortak modülde (emg_common.py) tanımlıdır.
+MAKALEDEKİ MİMARİ (Gehlot 2024)
+MAV
+MAV = (1/N) Σ |xᵢ|
+MEET
+MEET (OvO + Extra Trees)
+MEET = Mixture of Experts Extra Trees. Çok sınıflı problemi ikili alt problemlere böler ve her sınıf çifti için özelleşmiş bir 'uzman' eğitir.
+MEET Nasıl Çalışır?
+MEET modeli — 
+MEET — Ayrıntı: Fikir, Mimari ve Uygulama
+MEET — Mixture of Experts Extra Trees
+MEET — neredeyse tüm sınıflarda > %92
+METODOLOJİ
+MLP
+MLP (1×128)
+MLP (Sinir Ağı) Nasıl Çalışır?
+MLP esnek karar sınırıyla klasiklerle yarışır; KNN mesafe-tabanlı olduğu için örtüşmeye en kırılgan.
+MLP mimari / KNN uzaklık-ağırlık taraması
+MLP vs KNN?
+MLP — 'closed' %91,4'e çıkıyor
+MLP — daha dengeli profil
+MLP — silindirik %58,2
+MLP — Çok Katmanlı Algılayıcı
+MLP: %72,9 → %83,2  (+10,3)
+MODEL DETAYI
+MODEL — DETAY
+MODEL — NASIL ÇALIŞIR?
+MODELLER
+Makaledeki 'uzmanlaşma' fikrinin pratik bir uyarlaması
+Mean Absolute Value
+Metrikler
+Model
+Model her pencere için ayrı bir tahmin yapar → bir hareket birçok pencere üretir
+N sınıf için ~N/2 uzman + 1 'kapı (gate)' sınıflandırıcı
+NE İŞE YARAR?
+NEDEN BU SEÇİM?
+NEDEN GÜÇLÜ? 
+Neden 200 Hz → 1000 Hz'e Yükseltiyoruz?
+Neden CNN geride?
+Neden EMG ile El Hareketi Tanıma?
+Neden MEET / RF en iyi?
+Neden NinaPro ≫ Özel veri?
+Neden NinaPro? 
+Nihai çıktı = uzmanların ağırlıklı birleşimi
+NinaPro
+NinaPro (7)
+NinaPro 200 Hz kaydedilmiştir; ön işlemede 5 katına (1000 Hz) yükseltilir. Amaç yeni sinyal bilgisi eklemek DEĞİL — üç pratik nedendir:
+NinaPro CNN (ham 150×8)
+NinaPro DB5
+NinaPro DB5 — 
+NinaPro DB5 — Ayrıntılar
+NinaPro veri tabanı — 
+NinaPro — Detaylı Karşılaştırma
+NinaPro — KNN ve MLP Matrisleri
+NinaPro — Sınıf Bazlı Doğruluk
+None
+OneVsOne
+Onset: 40 ms pencerede ort.|genlik| > 435
+Open (B5)
+Orada iki sınıfı ayıran en geniş marjlı düzlemi bulur
+Ortak darboğaz 
+Ortak darboğaz: silindirik ↔ kapalı
+Ortak eğitim: 
+Ortalama mutlak genlik. En klasik sEMG genlik göstergesidir; sinyalin yoğunluğunu / şiddetini yansıtır ve gürültüye RMS'ten biraz daha dayanıklıdır.
+OvO + Extra Trees
+OvO: her hareket çifti için ayrı bir 'uzman' → n(n−1)/2 ikili sınıflandırıcı
+Oy çokluğu → Sınıf
+Oyları birleştir
+P1
+P2
+P3
+PROBLEM & MOTİVASYON
+Pedregosa, F. et al. (2011). Scikit-learn: Machine Learning in Python. JMLR 12:2825–2830.
+Pencere
+Pencere genişliği 150 ms  ·  adım 30 ms  ·  örtüşme %80  (kayan, çakışan pencereler)
+Pencere: 150 örnek (150 ms)
+Pencereleme
+Pinch (C14)
+Pizzolato, S. et al. (2017). Comparison of six EMG acquisition setups on hand movement classification tasks. PLoS ONE 12(10):e0186132.
+Point (B7)
+Problem, EMG ve motivasyon
+Protez el kontrolü
+RBF (radyal)
+RBF çekirdek
+RBF çekirdek: EMG öznitelik uzayı doğrusal ayrılabilir değil → doğrusal olmayan sınır gerekir
+REFERANSLAR
+RF
+RF ve MEET (topluluk/uzman) açık ara en iyi
+RMS
+RMS = √( (1/N) Σ xᵢ² )
+RMS·MAV·WL·SSC
+Random Forest
+Random Forest Nasıl Çalışır?
+Random Forest — 
+Random Forest — Rastgele Orman
+Random Forest: 100 farklı ağaç eğitir (her biri rastgele veri + rastgele öznitelik alt kümesiyle)
+ReLU + havuzlama (pooling): boyutu küçültür, önemli sinyali korur
+ReLU aktivasyon + softmax çıktı → çok sınıflı olasılık
+Rehabilitasyon
+Root Mean Square
+S1, S2, S5, S10
+SEÇİLEN PARAMETRELER
+SEÇİM İLKESİ
+SONUÇ
+SONUÇLAR
+SSC
+SSC = Σ [ (xᵢ−xᵢ₋₁)(xᵢ−xᵢ₊₁) < 0 ]
+SVM
+SVM (RBF)
+SVM / RF / MEET
+SVM Nasıl Çalışır?
+SVM — Destek Vektör Makinesi
+SVM ≈ MLP ≈ KNN orta grup (~%86-88)
+SVM, iki sınıfı en geniş boşlukla (marj) ayıran karar sınırını arar.
+SVM·RF·MEET·CNN·KNN·MLP
+Sabit tohum (22)
+Scissors (B2)
+Seçilen El Hareketleri
+Silindirik (tek ayrılamayan sınıf) çıkarıldığında (4 sınıf) tüm modeller belirgin iyileşir. En büyük kazanç 'kapalı' sınıfında:
+Silindirik satırı altı modelin tamamında en düşük (~%51–61) — asıl darboğaz.
+Silindirik ↔ kapalı karışması (ana darboğaz)
+Sinyal kişiden kişiye, hatta denemeden denemeye değişir. 
+Sinyal Ön İşleme — Parametreler
+Sinyal ön işleme
+Sinyalin karekök-ortalama-kare değeri. Kasın ürettiği toplam gücü / enerjiyi temsil eder; kasılma ne kadar güçlüyse o kadar yüksektir.
+Slope Sign Changes
+Sonuç
+Sonuçlar ve detaylı karşılaştırma
+Sonuçlar — NinaPro (6 Model)
+Sonuçlar — Özel Veri (5 sınıf · tip yok)
+Sorunlar ve Geliştirme Önerileri
+Sorunlar ve öneriler
+StandardScaler
+StandardScaler sadece eğitimde 'fit' → veri sızıntısı yok
+Standart bir sEMG kıyaslama tabanı. Myo kol bandının ilk 8 kanalı kullanıldı. 200 Hz ham sinyal, zaman çözünürlüğü için 1000 Hz'e yükseltildi. E2 ve E3 egzersiz dosyalarından B ve C serisi hareketler alındı.
+Standart, çok denekli ve tekrarlanabilir; sonuçlar literatürle karşılaştırılabilir.
+Sunum Akışı
+SİLİNDİRİK ÇIKINCA
+Sınıf
+Sınıf dağılımını koruyan (stratified) ayrım
+Sınıra en yakın örnekler 'destek vektörleri'dir; sınırı onlar belirler
+Sınırlama: 
+TEMEL FİKİR
+TEMEL KAVRAM
+TEMEL ZORLUK
+Tahmin: oy çokluğu
+Tahmin: yeni örnek tüm uzmanlara sorulur, oylar toplanır, en çok oyu alan sınıf kazanır
+Tek boru hattı
+Tek gizli katman, 128 nöron: küçük öznitelik uzayı için yeterli kapasite
+Tekrarlanabilirlik: tohum tutarsızlığı (düzeltildi)
+Tekrarlar (repetition) seçilir
+Temel fikir (Gehlot ve ark., 2024): tek bir modelle tüm sınıfları ayırmak yerine, her biri küçük bir sınıf alt kümesine uzmanlaşmış Extra Trees 'uzmanları' kullanmak.
+Teşekkürler  •  Sorular?
+Thumb up (B1)
+Topluluk ve Bire-Bir uzman yapıları zor çiftleri keskin ayırır ve varyansı düşürür.
+Tüm modeller ~%70–73 bandında; KNN en zayıf (%70). 
+Tüm modellerde tekrarlanabilirlik
+Uzmanların temeli Extra Trees (aşırı rastgele ağaçlar) → düşük varyans, hızlı eğitim
+Uzmanlaşma + rastgelelik = keskin sınır + düşük varyans
+VERİ SETLERİ
+VERİ SETİ 1
+VERİ SETİ 2
+Veri setleri ve el hareketleri
+WL
+WL = Σ |xᵢ₊₁ − xᵢ|
+Waveform Length
+YAPAY ZEKÂ TABANLI EMG SİNYALLERİ İLE
+YORUM
+Yalnız 2 kanal → benzer kavramaları ayırmak için uzamsal bilgi kısıtlı. İleride sonuç farklarının ana nedeni bu.
+Yeni bir örnek gelince tüm örneklere uzaklık hesaplanır
+Yeni örnek düzlemin hangi tarafında ise o sınıfa atanır
+Yeterli örnek / pencere
+YÖNTEM
+Yöntemler · Öznitelikler · Parametreler · Altı Modelin Karşılaştırması
+Yükseltme bir interpolasyondur — gerçek yeni bilgi veya frekans eklemez 
+Yüzey EMG (sEMG)
+Yüzey EMG Sinyali Nedir?
+Yüzey EMG'nin küçük kaymalarına ve gürültüsüne dayanıklı
+Zaman ekseni yok → minik ağ yeterli
+Zaman-uzayı öznitelikleri (RMS/MAV/WL/SSC) — 
+Zaman-uzayı öznitelikleri ucuz ve etkilidir
+Zor çiftleri (B1↔B7, C5↔C14) tek modele göre daha keskin ayırır
+closed
+cylindrical
+cylindrical  — en çok karışan sınıf
+denek
+eğitim
+filtresi
+gamma
+gamma='scale': çekirdek genişliğini öznitelik varyansına göre otomatik ayarlar
+gizli katman
+hareket
+haritası
+her biri Extra Trees
+k-kat çapraz doğrulama
+k=5 komşu
+k=5: tek sayı (eşitlik olmaz), yerel yapıyı yakalayacak kadar küçük
+kernel
+max_depth
+max_depth=None: ağaçlar tam büyür, topluluk ortalaması aşırı-öğrenmeyi dengeler
+max_iter
+metric
+n_estimators
+n_jobs
+n_neighbors (k)
+open
+pencere
+point
+random_state
+rock
+sEMG literatüründe hareket tanıma için köklü ve kanıtlanmış
+scikit-learn (SVM, RF, ET, KNN, MLP) — 
+scikit-learn OneVsOne + Extra Trees
+silindirik ↔ kapalı
+softmax
+strateji
+temel öğrenici
+yok (tembel)
+zorunlu
+~%73
+~%82,7
+~%83
+~+10
+Çalışmanın İşlem Hattı
+Çok düşük hesap maliyeti → gerçek zamanlı / gömülü protez için uygun
+Çıktı
+Çıktı katmanı: softmax ile sınıf olasılıkları
+Çıktı: 32-boyut CSV + ham (150×8) tensör
+Çıktı: custom_dataset.csv
+ÖN İŞLEME
+ÖNEMLİ UYARI
+ÖZNİTELİK ANLAMLARI
+ÖZNİTELİKLER
+Öklid
+Öklid uzaklık: standartlaştırılmış özniteliklerde en yakın 5 komşunun oyu
+Ölçekleme
+Ölçekleme yalnız eğitimde
+Ölçekleme şart: SVM uzaklık temelli olduğu için standardizasyona duyarlı
+Öneriler
+Örnekleme
+Örtüşme %80: ardışık pencereler büyük ölçüde çakışır → daha çok örnek, zamanda süreklilik
+Özel Veri
+Özel Veri (5)
+Özel Veri (Ecem & Selman)
+Özel Veri CNN (8 öznitelik)
+Özel Veri — 6 Model Karşılaştırması (cyl dahil)
+Özel Veri — Ecem & Selman
+Özel Veri — KNN ve MLP Matrisleri (cyl dahil)
+Özel Veri — KNN ve MLP Matrisleri (cyl hariç)
+Özel Veri — Sınıf Bazlı Doğruluk (cyl dahil)
+Özel Veri — cyl Dahil vs Hariç
+Özel veri zaten 1000 Hz ve 150-örnek pencere. Yükseltince aynı pencere + öznitelik kodu ikisine de uyar.
+Öznitelik
+Öznitelik Seçimi — Neden Zaman Uzayı?
+Öznitelik Vektörü ve Boyut
+Öznitelik seçimi ve anlamları
+Öznitelik önemini de verir; yorumlanabilirlik avantajı
+Öznitelikler I — RMS ve MAV
+Öznitelikler II — WL ve SSC
+Öğrenme: geri yayılım (backprop) ile ağırlıklar güncellenir
+çözücü
+çıktı
+ölçekleme
+İLERİ ADIMLAR
+İki Tamamlayıcı Veri Seti
+İki denekten, düşük maliyetli 2 kanallı bir kurulumla toplandı. Sinyaller hareket başına kanal bazında (ch1, ch2) dört .mat dosyasında saklanır.
+İki klasik (SVM, RF), bir topluluk-uzman (MEET), bir derin (CNN) ve iki temel model (KNN, MLP).
+İkili uzmanlar
+İnsan–makine arayüzü
+İyi tasarlanmış zaman-uzayı öznitelikleri klasik modelleri güçlü kılıyor; MLP rekabetçi, KNN en temel yaklaşım. Özel verideki tavan model değil, 2 kanalın fiziksel sınırıdır — en yüksek getirili adım kanal sayısını artırmaktır.
+İyi öznitelikler klasik modelleri güçlü kılıyor
+•  
+›
+→
+→ Sınıf

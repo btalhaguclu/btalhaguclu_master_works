@@ -85,13 +85,14 @@ NINAPRO_NAMES = {
 }
 
 # Custom (Ecem & Selman) 2-channel dataset (label -> readable name).
+# NOTE: on this branch the 'tip' gesture is excluded entirely, so the dataset
+# has 5 gestures and labels are renumbered 0..4 (as if 'tip' never existed).
 CUSTOM_NAMES = {
     0: "point",
-    1: "tip",
-    2: "rock",
-    3: "closed",
-    4: "cylindrical",
-    5: "open",
+    1: "rock",
+    2: "closed",
+    3: "cylindrical",
+    4: "open",
 }
 
 
@@ -177,3 +178,55 @@ def print_summary(results: dict):
         print(f"{name:<28} {acc * 100:6.2f}%")
     best = max(results, key=results.get)
     print(f"\nBest model: {best} ({results[best] * 100:.2f}%)")
+
+
+# --------------------------------------------------------------------------- #
+# Shared 1D CNN for RAW EMG windows
+# --------------------------------------------------------------------------- #
+def build_raw_cnn(input_shape, n_classes):
+    """Build the 1D CNN used for RAW EMG windows.
+
+    Input is a raw (time_steps, channels) window - e.g. (150, 8) for NinaPro or
+    (150, 2) for the custom dataset. Both datasets now use this exact same
+    architecture so the CNN is trained on the raw signal in a consistent way;
+    only input_shape (channel count) and n_classes differ.
+
+    (TensorFlow is imported lazily so the classical scripts can import this
+    module without TensorFlow installed.)
+    """
+    import tensorflow as tf
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.layers import (Conv1D, MaxPooling1D, Flatten, Dense,
+                                          Dropout, BatchNormalization)
+    model = Sequential([
+        Conv1D(64, 10, activation="relu", input_shape=input_shape),
+        BatchNormalization(),
+        MaxPooling1D(2),
+        Conv1D(128, 5, activation="relu"),
+        BatchNormalization(),
+        MaxPooling1D(2),
+        Flatten(),
+        Dense(256, activation="relu"),
+        Dropout(0.5),
+        Dense(128, activation="relu"),
+        Dropout(0.3),
+        Dense(n_classes, activation="softmax"),
+    ])
+    model.compile(optimizer=tf.keras.optimizers.Adam(1e-3),
+                  loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    return model
+
+
+def standardize_windows(X_train, X_test):
+    """StandardScaler over raw 3D windows (fit on train only).
+
+    Flattens (n, time, ch) -> (n, time*ch) for scaling, then reshapes back.
+    Returns the scaled train/test arrays.
+    """
+    from sklearn.preprocessing import StandardScaler
+    n_tr, t, c = X_train.shape
+    n_te = X_test.shape[0]
+    sc = StandardScaler()
+    X_train = sc.fit_transform(X_train.reshape(n_tr, t * c)).reshape(n_tr, t, c)
+    X_test = sc.transform(X_test.reshape(n_te, t * c)).reshape(n_te, t, c)
+    return X_train, X_test

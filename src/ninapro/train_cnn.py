@@ -20,15 +20,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.utils.class_weight import compute_class_weight
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import (Conv1D, MaxPooling1D, Flatten, Dense,
-                                      Dropout, BatchNormalization)
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 
 sys.path.append(str(pathlib.Path(__file__).resolve().parent.parent))
 from emg_common import (set_seed, SEED, DATA_DIR, output_path,
-                        plot_confusion_matrix, NINAPRO_NAMES)
+                        plot_confusion_matrix, standardize_windows,
+                        build_raw_cnn, NINAPRO_NAMES)
 
 set_seed()
 
@@ -55,36 +52,15 @@ X_train, X_test, y_train, y_test = train_test_split(
     X_raw, y, test_size=0.20, random_state=SEED, stratify=y)
 
 # --------------------------------------------------------------------------- #
-# 2. Standardise (fit on train only; reshape 3D<->2D around the scaler)
+# 2. Standardise raw windows (fit on train only)
 # --------------------------------------------------------------------------- #
-n_tr, t_steps, ch = X_train.shape
-n_te = X_test.shape[0]
-scaler = StandardScaler()
-X_train = scaler.fit_transform(
-    X_train.reshape(n_tr, t_steps * ch)).reshape(n_tr, t_steps, ch)
-X_test = scaler.transform(
-    X_test.reshape(n_te, t_steps * ch)).reshape(n_te, t_steps, ch)
+X_train, X_test = standardize_windows(X_train, X_test)
 print(f"Train: {X_train.shape}   Test: {X_test.shape}")
 
 # --------------------------------------------------------------------------- #
-# 3. Model
+# 3. Model (shared raw-signal architecture; same as the custom CNN)
 # --------------------------------------------------------------------------- #
-model = Sequential([
-    Conv1D(64, 10, activation="relu", input_shape=(t_steps, ch)),
-    BatchNormalization(),
-    MaxPooling1D(2),
-    Conv1D(128, 5, activation="relu"),
-    BatchNormalization(),
-    MaxPooling1D(2),
-    Flatten(),
-    Dense(256, activation="relu"),
-    Dropout(0.5),
-    Dense(128, activation="relu"),
-    Dropout(0.3),
-    Dense(7, activation="softmax"),
-])
-model.compile(optimizer=tf.keras.optimizers.Adam(1e-3),
-              loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+model = build_raw_cnn(input_shape=X_train.shape[1:], n_classes=len(target_names))
 
 class_weights = dict(enumerate(compute_class_weight(
     "balanced", classes=np.unique(y_train), y=y_train)))

@@ -1,0 +1,46 @@
+[1|AI-BASED CLASSIFICATION OF EMG SIGNALS F] Bu sunum çalışmayı sıfırdan, detaylı biçimde anlatır: problem, veri, öznitelikler ve anlamları, altı modelin parametreleriyle açıklanması ve ayrıntılı karşılaştırma.
+[2|AGENDA] Gündem: problem, veri, öznitelikler (detaylı), altı modelin parametreleri, değerlendirme, karşılaştırma, cylindrical etkisi ve öneriler.
+[3|PROBLEM & MOTIVATION] Problem: EMG'den hareket tanıma; protez/rehabilitasyon/arayüz uygulamaları. Ana zorluk sinyal değişkenliği ve benzer hareketlerin karışması.
+[4|BACKGROUND] EMG temeli: yüzey elektrotları kas elektriksel aktivitesini okur. Gürültülü ve değişken olduğundan ham dalga yerine pencereleyip öznitelik çıkarırız.
+[5|OVERVIEW] Boru hattı: ham sinyal → pencereleme → öznitelik → ölçekleme → model → değerlendirme. Sabit tutularak modeller adil karşılaştırılıyor.
+[6|DATASETS] NinaPro: 8 kanal, 4 denek, 7 hareket, açık kaynak. Özel veri: 2 kanal, 2 denek, 6 hareket. Kanal farkı sonuçların ana belirleyicisi.
+[7|DATASET 1] NinaPro DB5 detay: 8 kanal, S1/S2/S5/S10, E2-E3 egzersizleri, 200→1000 Hz. Standart olması karşılaştırılabilirlik sağlıyor.
+[8|DATASET 2] Özel veri: 2 kanal, 2 denek, 6 hareket, 81k pencere. 2 kanal sınırı ileride silindirik-kapalı karışmasının kaynağı.
+[9|GESTURES] NinaPro 7, özel veri 5 hareket (tip dahil edilmedi). Silindirik özel veride en çok karışan sınıf.
+[10|METHOD] Pencere 150 ms, %80 örtüşme. NinaPro'da resample; özel veride 435 eşikli onset tespiti. Bu parametreler sinyalin kararlı bölgesini yakalamak için seçildi.
+[11|KEY CONCEPT] Pencere: sürekli sinyalden kesilen 150 ms'lik parça. Model her pencereyi ayrı sınıflandırır; her pencereden bir öznitelik vektörü çıkar. Kayan pencere %80 örtüşmeyle ilerler. Görselde çakışan P1/P2/P3 pencereleri gösteriliyor.
+[12|PREPROCESSING] 200->1000 Hz yükseltme üç nedenle: (1) pencere başına 30->150 örnek, WL/SSC daha kararlı; (2) özel veriyle aynı boru hattı; (3) CNN için 150 uzunlukta girdi. Önemli: bu interpolasyondur, yeni bilgi/frekans eklemez (Nyquist 100 Hz).
+[13|FEATURES] Zaman-uzayı öznitelikleri seçildi çünkü ucuz, dayanıklı, literatürde standart ve küçük veriyle çalışıyor. Dört öznitelik tamamlayıcı bilgi taşıyor, fazlalık az.
+[14|FEATURE MEANINGS] RMS: karekök ortalama kare → kas gücü/enerji. MAV: ortalama mutlak değer → genlik/yoğunluk. İkisi de amplitüd bilgisi taşır ama tamamlayıcıdır.
+[15|FEATURE MEANINGS] WL: ardışık farkların toplamı → karmaşıklık. SSC: eğim işareti değişim sayısı → frekans içeriği tahmini. WL ve SSC frekans/şekil bilgisi katar.
+[16|FEATURES] Boyut = kanal × 4: NinaPro 32, özel veri 8. Kolonlar RMS_ch1... şeklinde. Bu fark ileride performans farkının kökeni.
+[17|MODELS] Altı model karşılaştırılıyor. Sıradaki slaytlarda her birinin parametreleri ve seçim gerekçeleri.
+[18|MODEL — HOW IT WORKS] SVM: RBF çekirdegi ile veriyi yuksek boyuta tasir, iki sinifi en genis marjla ayiran duzlemi bulur; sinira en yakin ornekler destek vektorleridir.
+[19|MODEL — HOW IT WORKS] Random Forest: 100 karar agacinin oy coklugu. Her agac rastgele veri+oznitelik alt kumesiyle egitilir; topluluk ortalamasi varyansi dusurur, gurultuye dayaniklidir.
+[20|MODEL — HOW IT WORKS] MEET: cok sinifli problemi Bire-Bir (OvO) ile ikili alt problemlere boler; her cift icin bir Extra Trees uzmani egitir. Her uzman sadece iki sinifi ayirir -> zor ciftlerde cok keskin sinir. Tahminde oylar birlesir. Ne ise yarar: silindirik-kapali gibi benzer ciftleri en iyi ayirir, en dengeli ve en yuksek dogruluk (>%94).
+[21|MODEL — DETAIL] MEET detay: Temel fikir tek model yerine birden cok Extra Trees uzmani (her biri sinif altkumesine odakli). Makale (Gehlot 2024): ~N/2 uzman (sinif ciftleri) + 1 kapi (gate) siniflandirici, agirlikli birlesim. Bu calismada: sklearn OneVsOne + ExtraTrees (cift basina uzman, oy coklugu) — fikrin uyarlamasi. Neden guclu: zor ciftleri keskin ayirir, en yuksek dogruluk.
+[22|MODEL — HOW IT WORKS] KNN: egitim yok. Yeni ornege en yakin k=5 komsu bulunur, oy coklugu tahmini verir. Olcekleme sart; ortusmeye duyarli.
+[23|MODEL — HOW IT WORKS] MLP: girdi -> gizli katman (agirlikli toplam + ReLU) -> softmax cikti. Agirliklar backprop ile ogrenilir. Standardize girdi sart.
+[24|MODEL — HOW IT WORKS] 1B CNN: evrisim filtreleri yerel oruntuleri yakalar, havuzlama boyut kucultur, dense katman siniflandirir. Filtreler egitimle otomatik ogrenilir.
+[25|MODEL DETAIL] SVM: RBF çekirdek çünkü doğrusal ayrılamaz; C=10 marj-hata dengesi; gamma=scale otomatik. Ölçekleme kritik.
+[26|MODEL DETAIL] RF: 100 ağaç yeterli ve kararlı; tam derinlik + topluluk ortalaması aşırı öğrenmeyi dengeler; gürültüye dayanıklı, öznitelik önemi verir.
+[27|MODEL DETAIL] MEET: Bire-Bir uzmanlar (her çift için bir Extra Trees). Zor çiftleri iyi ayırır; en dengeli ve yüksek doğruluğu verir.
+[28|MODEL DETAIL] KNN: k=5 tek sayı, Öklid uzaklık, tembel öğrenici. Basit ama örtüşmeye duyarlı. Ölçekleme zorunlu.
+[29|MODEL DETAIL] MLP: tek gizli katman 128 ReLU, softmax, Adam lr=0.001. Doğrusal olmayan sınır öğrenir, küçük veriyle rekabetçi. Girdi standardizasyonu şart.
+[30|MODEL DETAIL] İki CNN: NinaPro ham 150×8 zaman serisi (2 evrişim bloğu), özel veri 8 öznitelik (minik ağ). Ortak: Adam, erken durdurma, LR azaltma, sınıf ağırlığı.
+[31|METHODOLOGY] Değerlendirme: stratified 80/20, ölçekleme sadece eğitimde, denek-içi ve denekler-arası, sabit seed 22, normalize confusion matrix.
+[32|RESULTS] NinaPro: MEET %94,7 ve RF %92,9 lider; SVM/MLP/KNN orta (%86-88); CNN sonda. MEET matrisi çok dengeli.
+[33|COMPARISON] Sıralama: MEET > RF > SVM > MLP > KNN > CNN. Topluluk/uzman yöntemleri lider; iyi öznitelikle klasikler CNN'i geçiyor.
+[34|COMPARISON] Altı modelin sınıf-bazlı doğrulukları. MEET her sınıfta en iyi. KNN Point'te zayıf (B1↔B7). Detaylı karşılaştırma bu tabloda.
+[35|COMPARISON] KNN NinaPro'da Point zayıf (B1↔B7). MLP daha dengeli; zorlu sınıflarda KNN'i geçiyor.
+[36|RESULTS] Özel veri (tip yok, 5 sınıf, 6 model): tümü ~%70-73, KNN %70. CNN de (%72,6) klasiklerle başa baş. Silindirik-kapalı ortak darboğaz.
+[37|COMPARISON] Silindirik çıkınca (4 sınıf): KNN +11,8, MLP +10,3 puan; kapalı sınıfı ~%89-91'e fırlıyor. SVM/RF/MEET de benzer (~%83). Sorun 2 kanalın fiziksel sınırı.
+[38|COMPARISON] Özel veride (tip yok) beş model de ~%70-73; fark küçük. Kanal sınırı nedeniyle tavan ~%73. Ortak sorun silindirik-kapalı.
+[39|COMPARISON] Sınıf bazlı (cyl dahil, tip yok): 6 modelin tamamı (CNN dahil). Silindirik her modelde en düşük (~%51-61). Bu darboğaz genel doğruluğu aşağı çekiyor.
+[40|COMPARISON] cyl dahil(5) vs hariç(4): KNN +11,8, MLP +10,3 puan. closed sınıfı ~%90'a fırlıyor. SVM/RF/MEET de benzer. Sorun tek ayrılamayan sınıf.
+[41|COMPARISON] cyl dahil KNN/MLP matrisleri: silindirik satırı düşük ve kapalı ile karışıyor.
+[42|COMPARISON] cyl hariç KNN/MLP matrisleri: kapalı sınıfı ~%89-90'a yükseliyor, karışma büyük ölçüde çözülüyor.
+[43|INTERPRETATION] Analiz: kanal sayısı ana etken; topluluk/uzman en iyi; MLP rekabetçi, KNN örtüşmeye kırılgan; iyi öznitelikle klasikler CNN'i geçiyor.
+[44|NEXT STEPS] Sorunlar: silindirik karışması, kanal sınırı, tekrarlanabilirlik/kod düzeni (giderildi). Öneriler: kanal artır, daha fazla denek, frekans öznitelikleri, k-kat CV, hiperparametre.
+[45|CONCLUSION] Sonuç: MEET/RF lider (>%92), iyi öznitelikler klasikleri güçlü kılıyor, MLP rekabetçi, KNN temel. Özel veri sınırı kanal sayısı. Teşekkürler.
+[46|REFERENCES] Kaynaklar: MEET (Gehlot 2024), NinaPro (Atzori 2014 / DB5 Pizzolato 2017), zaman-uzayi oznitelikleri (Hudgins 1993), Random Forest (Breiman 2001), Extra Trees (Geurts 2006), scikit-learn (Pedregosa 2011).

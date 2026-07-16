@@ -17,6 +17,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.multiclass import OneVsOneClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
 
 sys.path.append(str(pathlib.Path(__file__).resolve().parent.parent))
 from emg_common import (set_seed, SEED, DATA_DIR, output_path,
@@ -78,5 +80,20 @@ meet.fit(X_train, y_train)
 results["MEET (ExtraTrees+OvO)"] = evaluate_model(
     meet, X_test, y_test, "MEET (Extra Trees + OvO)", target_names, labels,
     output_path("ninapro", "MEET_4sbj.png"))
+
+# k-Nearest Neighbours: simple distance-based baseline.
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train, y_train)
+results["KNN (k=5)"] = evaluate_model(
+    knn, X_test, y_test, "KNN (k=5)", target_names, labels,
+    output_path("ninapro", "KNN_4sbj.png"))
+
+# Multi-Layer Perceptron: a small feed-forward neural network.
+mlp = MLPClassifier(hidden_layer_sizes=(128,), activation="relu",
+                    max_iter=300, random_state=SEED)
+mlp.fit(X_train, y_train)
+results["MLP (1x128)"] = evaluate_model(
+    mlp, X_test, y_test, "MLP", target_names, labels,
+    output_path("ninapro", "MLP_4sbj.png"))
 
 print_summary(results)

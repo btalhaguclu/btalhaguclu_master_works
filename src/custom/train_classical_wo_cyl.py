@@ -1,9 +1,11 @@
 """
 Custom (Ecem & Selman) dataset - classical models WITHOUT the 'cylindrical' class.
 
-The cylindrical gesture (label 4) is the main source of confusion in this
-2-channel dataset. This variant drops it and re-runs SVM / RF / MEET on the
-remaining 5 gestures. Confusion matrices are saved under outputs/custom/.
+On this branch 'tip' is already excluded (5 gestures, labels 0..4), so
+cylindrical is label 3. The cylindrical gesture is the main source of
+confusion in this 2-channel dataset; this variant drops it as well and re-runs
+SVM / RF / MEET on the remaining 4 gestures (point, rock, closed, open).
+Confusion matrices are saved under outputs/custom/.
 
 Run:  python src/custom/train_classical_wo_cyl.py
 """
@@ -25,7 +27,7 @@ from emg_common import (set_seed, SEED, DATA_DIR, output_path,
 
 set_seed()
 
-CYL_LABEL = 4
+CYL_LABEL = 3  # cylindrical label after 'tip' removal (0..4 renumbering)
 
 csv_path = DATA_DIR / "custom" / "custom_dataset.csv"
 df = pd.read_csv(csv_path)
